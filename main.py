@@ -1,7 +1,5 @@
 import struct
-def ROL(n, x):
-    return ((x << n) & 0xffffffff) | (x >> (32 - n))
-def ROL1(x, n):
+def ROL(x, n):
     return ((x << n) & 0xffffffff) | (x >> (32 - n))
 
 def F(j, x, y, z):
@@ -41,7 +39,7 @@ def K2(j):
       return 0x00000000
 
 def R1(j, M):
-   r1 = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15, 7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8, 3, 10, 14, 4, 9, 15, 8, 1, 2, 7, 0, 6, 13, 11, 5, 12, 1, 9, 11, 10, 0, 8, 12, 4, 13, 3, 7, 15, 14, 5, 6, 2, 4, 0, 5, 9, 7, 12, 2, 10, 14, 1, 3, 8, 11, 6, 15, 13]
+   r1 = [0, 1, 2, 3 ,4, 5, 6 ,7, 8, 9, 10, 11, 12, 13, 14, 15 ,7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8, 3, 10, 14, 4, 9, 15, 8, 1, 2, 7, 0, 6, 13, 11, 5, 12, 1, 9, 11, 10, 0, 8, 12, 4, 13, 3, 7, 15, 14, 5, 6, 2, 4, 0, 5, 9, 7, 12, 2, 10, 14, 1, 3, 8, 11, 6, 15, 13]
    return M[r1[j]]
 
 def R2(j, M):
@@ -66,7 +64,6 @@ while(len(bin_s)%512!=448):
   bin_s = bin_s+'0'
 
 bin_s = bin_s + b[32:] + b[0:32]
-t = []
 M = []
 m = ''
 for j in range(0, len(bin_s)-64, 32):
@@ -79,10 +76,11 @@ for j in range(0, len(bin_s)-64, 32):
     M.append(m[0:32])
 M.append(bin_s[len(bin_s)-64:len(bin_s)-32])
 M.append(bin_s[len(bin_s)-32:len(bin_s)])
+t= 0
 for i in range(0,len(bin_s), 512):
-    t.append(bin_s[i:i+512])
+    t+=1
 H = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0]
-for i in range(0, len(t)):
+for i in range(0, t):
   A1 = H[0]
   A2 = H[0]
   B1 = H[1]
@@ -95,16 +93,16 @@ for i in range(0, len(t)):
   E2 = H[4]
   m = M[i*16:i*16+16]
   for j in  range(0, 80):
-    T = (ROL1((A1 + F(j, B1, C1,D1) + int(R1(j, m),2) + K1(j))%0x100000000, S1(j)) + E1)%0x100000000
+    T = (ROL((A1 + F(j, B1, C1,D1) + int(R1(j, m),2) + K1(j))%0x100000000, S1(j)) + E1)%0x100000000
     A1=E1;
     E1 = D1;
-    D1 = ROL1(C1, 10)
+    D1 = ROL(C1, 10)
     C1 = B1
     B1 = T
-    T = (ROL1((A2 + F(79-j, B2, C2,D2) + int(R2(j, m),2) + K2(j))%0x100000000, S2(j)) + E2)%0x100000000
+    T = (ROL((A2 + F(79-j, B2, C2,D2) + int(R2(j, m),2) + K2(j))%0x100000000, S2(j)) + E2)%0x100000000
     A2=E2;
     E2 = D2;
-    D2 = ROL1(C2, 10)
+    D2 = ROL(C2, 10)
     C2 = B2
     B2 = T
   T = (H[1]+C1+D2)%0x100000000
